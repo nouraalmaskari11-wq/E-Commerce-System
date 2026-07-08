@@ -137,11 +137,11 @@ namespace E_Commerce_System
             }
 
             Console.Write("Enter shipping address: ");
-            //string shippingAddress = Console.ReadLine();
+           
             string shippingAddress = Console.ReadLine() ?? string.Empty;
 
             Console.Write("Enter payment method:(Credit Card/PayPal/Cash ");
-            //string paymentMethod = Console.ReadLine();
+          
             string paymentMethod = Console.ReadLine() ?? "Cash";
 
             Order order = new Order
