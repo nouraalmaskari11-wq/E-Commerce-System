@@ -126,7 +126,7 @@ namespace E_Commerce_System.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderProduct",
+                name: "OrderItem",
                 columns: table => new
                 {
                     orderProductId = table.Column<int>(type: "int", nullable: false)
@@ -154,12 +154,12 @@ namespace E_Commerce_System.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderProduct_orderId",
-                table: "OrderProduct",
+                table: "OrderItem",
                 column: "orderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderProduct_productId",
-                table: "OrderProduct",
+                table: "OrderItem",
                 column: "productId");
 
             migrationBuilder.CreateIndex(
@@ -187,7 +187,7 @@ namespace E_Commerce_System.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrderProduct");
+                name: "OrderItem");
 
             migrationBuilder.DropTable(
                 name: "Reviews");

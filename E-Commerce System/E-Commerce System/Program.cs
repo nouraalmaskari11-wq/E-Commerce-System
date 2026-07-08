@@ -122,7 +122,12 @@ namespace E_Commerce_System
             Console.WriteLine("----------------------------------------");
 
             Console.Write("Enter user ID: ");
-            int userId = int.Parse(Console.ReadLine());
+            //int userId = int.Parse(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out int userId))
+            {
+                Console.WriteLine("Invalid user ID.");
+                return;
+            }
 
             User user = context.Users.Find(userId);
             if (user == null)
@@ -132,10 +137,12 @@ namespace E_Commerce_System
             }
 
             Console.Write("Enter shipping address: ");
-            string shippingAddress = Console.ReadLine();
+            //string shippingAddress = Console.ReadLine();
+            string shippingAddress = Console.ReadLine() ?? string.Empty;
 
-            Console.Write("Enter payment method: ");
-            string paymentMethod = Console.ReadLine();
+            Console.Write("Enter payment method:(Credit Card/PayPal/Cash ");
+            //string paymentMethod = Console.ReadLine();
+            string paymentMethod = Console.ReadLine() ?? "Cash";
 
             Order order = new Order
             {
@@ -175,10 +182,15 @@ namespace E_Commerce_System
                 }
 
                 Console.Write("Enter Product ID: or enter 0 to stop adding product");
-                int productId = int.Parse(Console.ReadLine());
-                if (productId == 0)
+                //int productId = int.Parse(Console.ReadLine());
+                //if (productId == 0)
+                //{
+                //    work = false;
+                //    break;
+                //}
+
+                if (!int.TryParse(Console.ReadLine(), out int productId) || productId == 0)
                 {
-                    work = false;
                     break;
                 }
 
@@ -187,25 +199,39 @@ namespace E_Commerce_System
                 if (product == null || !product.isAvailable || product.stockQuantity <= 0)
                 {
                     Console.WriteLine("Product not available.");
-                    return;
+                    continue;
                 }
 
                 Console.Write("Enter quantity: ");
-                int quantity = int.Parse(Console.ReadLine());
-                if (quantity <= 0 || quantity > product.stockQuantity)
+                //int quantity = int.Parse(Console.ReadLine());
+                //if (quantity <= 0 || quantity > product.stockQuantity)
+                //{
+                //    Console.WriteLine("Invalid quantity.");
+                //    continue;
+                //}
+
+                if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
                 {
                     Console.WriteLine("Invalid quantity.");
-                    return;
+                    continue;
                 }
 
-                OrderProduct orderItem = new OrderProduct
+                if (quantity > product.stockQuantity)
+                {
+                    Console.WriteLine($"not enough stock. Available: {product.stockQuantity}");
+                    continue;
+                }
+
+
+                OrderItem orderItem = new OrderItem
                 {
                     orderId = order.orderId,
                     productId = productId,
-                    quantity = quantity
+                    quantity = quantity,
+                    unitPrice= product.price
                 };
 
-                context.OrderProducts.Add(orderItem);
+                context.OrderItems.Add(orderItem);
 
                 decimal itemTotal = product.price * quantity;
                 total += itemTotal;
@@ -300,7 +326,12 @@ namespace E_Commerce_System
             Console.WriteLine("----------------------------------------");
 
             Console.Write("Enter Product ID: ");
-            int productId = int.Parse(Console.ReadLine());
+         // int productId = int.Parse(Console.ReadLine());
+            if(!int.TryParse(Console.ReadLine(),out int productId))
+            {
+                Console.WriteLine("Invalid product ID.");
+                return;
+            }
 
             Product product = context.Products.FirstOrDefault(p => p.productId == productId);
             if (product == null)
@@ -309,25 +340,31 @@ namespace E_Commerce_System
                 return;
             }
 
-            Console.WriteLine($" details:");
+            Console.WriteLine($"Current details:");
 
             Console.WriteLine($"Product: {product.productName}");
             Console.WriteLine($"Price: {product.price:F2}");
             Console.WriteLine($"Available: {product.isAvailable}");
 
             Console.Write("Enter new price: ");
-            decimal priceInput = decimal.Parse(Console.ReadLine());
-            if (priceInput != null)
+            //decimal priceInput = decimal.Parse(Console.ReadLine());
+            //product.price = priceInput;
+
+            string priceInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(priceInput)&& decimal.TryParse(priceInput,out decimal newPrice))
             {
-                product.price = priceInput;
+                product.price = newPrice;
             }
+            
 
             Console.Write("Is available : true or false ");
-            bool availInput = bool.Parse(Console.ReadLine());
+            //bool availInput = bool.Parse(Console.ReadLine());
+            //product.isAvailable = availInput;
 
-            if (availInput != null)
+            string availInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(availInput) && bool.TryParse(availInput, out bool newAvailability))
             {
-                product.isAvailable = availInput;
+                product.isAvailable = newAvailability;
             }
 
             context.SaveChanges();
@@ -347,7 +384,7 @@ namespace E_Commerce_System
             Console.Write("Enter Order ID: ");
             int orderId = int.Parse(Console.ReadLine());
 
-            Order order = context.Orders.Include(o => o.OrderProducts).FirstOrDefault(o => o.orderId == orderId);
+            Order order = context.Orders.Include(o => o.OrderItems).FirstOrDefault(o => o.orderId == orderId);
 
             if (order == null)
             {
@@ -362,7 +399,7 @@ namespace E_Commerce_System
             }
 
             
-            foreach (var Item in order.OrderProducts)
+            foreach (var Item in order.OrderItems)
             {
                 var product = context.Products.Find(Item.productId);
                 if (product != null)
@@ -509,12 +546,12 @@ namespace E_Commerce_System
 
             Console.WriteLine($"Description:{category.description}");
 
-            Console.WriteLine($"Products in this category {category.Products}:");
+       
 
-            if (category.Products != null)
+            if (category.Products != null && category.Products.Any())
             {
 
-
+                Console.WriteLine($"Products in this category ({category.Products.Count}):");
                 foreach (var p in category.Products)
                 {
                     Console.WriteLine($"ID:{p.productId} | Name:{p.productName} | Price:{p.price:F2} | Stock:{p.stockQuantity}");
@@ -537,7 +574,7 @@ namespace E_Commerce_System
             Console.Write("Enter user ID: ");
             int userId = int.Parse(Console.ReadLine());
 
-            var user = context.Users.Include(u => u.Orders).ThenInclude(o => o.OrderProducts).ThenInclude(p => p.Product).FirstOrDefault(u => u.userId == userId);
+            var user = context.Users.Include(u => u.Orders).ThenInclude(o => o.OrderItems).ThenInclude(p => p.Product).FirstOrDefault(u => u.userId == userId);
 
             if (user == null)
             {
@@ -561,9 +598,9 @@ namespace E_Commerce_System
                     Console.WriteLine($"Total:{order.totalAmount:F2}");
                     Console.WriteLine($"Products:");
 
-                    if (order.OrderProducts != null)
+                    if (order.OrderItems != null)
                     {
-                        foreach (var item in order.OrderProducts)
+                        foreach (var item in order.OrderItems)
                         {
                             Console.WriteLine($"product Nam: {item.Product.productName}, Unit Price: {item.Product.price:F2} * {item.quantity}");
                         }
@@ -589,7 +626,7 @@ namespace E_Commerce_System
                     ProductName = p.productName,
                     CategoryName = p.Category.categoryName,
                     ReviewCount = p.Reviews.Count(),
-                    AvgRating = p.Reviews.Average(r => r.rating)
+                    AvgRating = p.Reviews.Any() ? p.Reviews.Average(r => r.rating) : 0
                 }).ToList();
 
             foreach (var p in products)
@@ -598,13 +635,28 @@ namespace E_Commerce_System
                 Console.WriteLine("------------------------------------------------------------------------------------------------------------------------------------------------------");
             }
 
+
+
+
             Console.WriteLine("Enter product ID:");
-            int productId = int.Parse(Console.ReadLine());
+            //int productId = int.Parse(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out int productId))
+            {
+                Console.WriteLine("Invalid product ID.");
+                return;
+            }
+
+            Console.WriteLine("--- Lazy Loading ---");
 
             Product product = context.Products.FirstOrDefault(p => p.productId == productId);
             if (product != null)
             {
-
+                Console.WriteLine($"product {product.productName} fetched. now accessing Reviews navigation property ..");
+                Console.WriteLine("second query fires here ");
+                Console.WriteLine("--------------------------------------------------------------------");
+                int reviewCount = product.Reviews ? .Count?? 0;
+                double avgRating = product.Reviews?.Average(r => r.rating) ?? 0;
+                Console.WriteLine($"product has {reviewCount} reviews. AvgRating {avgRating:F1}");
             }
             else
             {

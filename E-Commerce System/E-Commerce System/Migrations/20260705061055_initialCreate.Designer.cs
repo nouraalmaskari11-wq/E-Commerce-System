@@ -90,7 +90,7 @@ namespace E_Commerce_System.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("E_Commerce_System.Models.OrderProduct", b =>
+            modelBuilder.Entity("E_Commerce_System.Models.OrderItem", b =>
                 {
                     b.Property<int>("orderProductId")
                         .ValueGeneratedOnAdd()
@@ -113,7 +113,7 @@ namespace E_Commerce_System.Migrations
 
                     b.HasIndex("productId");
 
-                    b.ToTable("OrderProduct");
+                    b.ToTable("OrderItem");
                 });
 
             modelBuilder.Entity("E_Commerce_System.Models.Product", b =>
@@ -250,7 +250,7 @@ namespace E_Commerce_System.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("E_Commerce_System.Models.OrderProduct", b =>
+            modelBuilder.Entity("E_Commerce_System.Models.OrderItem", b =>
                 {
                     b.HasOne("E_Commerce_System.Models.Order", "Order")
                         .WithMany("OrderProducts")

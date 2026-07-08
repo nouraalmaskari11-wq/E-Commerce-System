@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace E_Commerce_System.Models
 {
@@ -41,6 +43,6 @@ namespace E_Commerce_System.Models
 
         //navigation 
         public virtual User User { get; set; }
-        public virtual List<OrderProduct> OrderProducts { get; set; }
+        public virtual List<OrderItem> OrderItems { get; set; }
     }
 }
